@@ -4,6 +4,7 @@ class Controls {
         this.left = false;
         this.backward = false;
         this.right = false;
+        this.jump = false;
 
         if (controlType === "KEY") {
             this.#addEventListeners();
@@ -24,6 +25,9 @@ class Controls {
                      break;
                 case "d":
                     this.right = true;
+                    break;
+                case " ":
+                    this.jump = true;
                     break;
             }
         });

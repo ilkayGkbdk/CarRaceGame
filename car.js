@@ -8,13 +8,17 @@ class Car {
         this.polygon = this.#createPolygon();
 
         this.speed = 0;
-        this.acceleration = 0.2;
+        this.acceleration = 0.3;
         this.maxSpeed = maxSpeed;
         this.friction = 0.05;
         this.angle = 0;
-        this.steerSens = 0.04;
+        this.steerSens = 0.05;
+        this.steeringCorrectionSens = 0.025;
 
         this.damage = false;
+        this.invincible = false;
+        this.jumping = false;
+        this.currentFrame = 0;
 
         this.sensor = controlType !== "DUMMY" ? null : null;
         this.controls = new Controls(controlType);
@@ -23,6 +27,8 @@ class Car {
     update(roadBorders, traffic) {
         if (!this.damage) {
             this.#move();
+            this.#jump();
+            this.#steeringCorrection();
             this.polygon = this.#createPolygon();
             this.damage = this.#assesDamage(roadBorders, traffic);
         }
@@ -32,6 +38,10 @@ class Car {
     }
 
     #assesDamage(roadBorders, traffic) {
+        if (this.invincible) {
+            return false;
+        }
+
         for (let i = 0; i < roadBorders.length; i++) {
             if (polysIntersect(this.polygon, roadBorders[i])) {
                 return true;
@@ -107,6 +117,40 @@ class Car {
 
         this.x -= Math.sin(this.angle) * this.speed;
         this.y -= Math.cos(this.angle) * this.speed;
+    }
+
+    #jump() {
+        if (this.controls.jump) {
+            this.currentFrame = frame;
+            this.invincible = true;
+            this.jumping = true;
+            this.controls.jump = false;
+        }
+        if (!this.controls.jump && this.currentFrame + 60 === frame && this.jumping) {
+            this.jumping = false;
+        }
+
+        if (this.jumping) {
+            this.width += 0.5;
+            this.height += 0.5;
+        }
+        else {
+            this.width = Math.max(55, this.width - 0.5);
+            this.height = Math.max(90, this.height - 0.5);
+            this.invincible = this.width !== 55;
+        }
+    }
+
+    #steeringCorrection() {
+        if (this.angle > 0) {
+            this.angle -= this.steeringCorrectionSens;
+        }
+        if (this.angle < 0) {
+            this.angle += this.steeringCorrectionSens;
+        }
+        if (Math.abs(this.angle) < this.steeringCorrectionSens) {
+            this.angle = 0;
+        }
     }
 
     draw(ctx) {

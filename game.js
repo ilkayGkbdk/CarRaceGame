@@ -60,12 +60,12 @@ class Game {
         }
     }
 
-    #generateTraffic(carMinDist = 200, carDistStep = 125) {
+    #generateTraffic(carMinDist = 200, carDistStep = 150) {
         const traffic = [];
 
         let index = 999;
         let random = 1;
-        let y = this.car.y - 200;
+        let y = 0;
 
         const N = this.trafficSize;
 
@@ -73,7 +73,7 @@ class Game {
             random = i % 2 === 0 ? Math.floor(Math.random() * 3) : random;
             index = i % 2 === 0 ? (index !== random ? random : (random + 2) % 3) : (random + 1) % 3;
             y = i % 2 === 0 ? (car.y - carMinDist) - carDistStep * i : y;
-            traffic.push(new Car(road.getLaneCenter(index), y, 50, 80, 3, "DUMMY", getRandomColor()));
+            traffic.push(new Car(road.getLaneCenter(index), y, 55, 90, 3, "DUMMY", getRandomColor()));
         }
 
         return traffic;
