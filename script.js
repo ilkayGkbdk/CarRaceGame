@@ -8,7 +8,7 @@ let frame = 0;
 let second = 0;
 
 const road = new Road(canvas.width / 2, canvas.width * 0.8);
-const car = new Car(road.getLaneCenter(1), 200, 55, 90, 10, "KEY");
+const car = new Car(road.getLaneCenter(1), 200, 55, 90, 15, "KEY");
 
 const game = new Game(car, road, 50);
 

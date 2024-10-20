@@ -60,7 +60,7 @@ class Game {
         }
     }
 
-    #generateTraffic(carMinDist = 200, carDistStep = 150) {
+    #generateTraffic(carMinDist = 200, carDistStep = 200) {
         const traffic = [];
 
         let index = 999;
