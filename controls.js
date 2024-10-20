@@ -1,5 +1,5 @@
 class Controls {
-    constructor(controlType) {
+    constructor(controlType = "KEY") {
         this.forward = controlType === "DUMMY";
         this.left = false;
         this.backward = false;

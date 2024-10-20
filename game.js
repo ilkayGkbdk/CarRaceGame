@@ -1,31 +1,58 @@
 class Game {
-    constructor(car, road, trafficSize = 0) {
+    constructor(canvas, car, road, trafficSize = 0) {
         this.car = car;
         this.road = road;
         this.trafficSize = trafficSize;
         this.traffic = this.#generateTraffic();
         this.finishLine = this.#getFinishLine();
 
-        this.frame = 0;
-        this.second = 0;
         this.gameOver = false;
+
+        this.time = Date.now().valueOf();
+        this.finalTime = null;
+
+        this.save();
+        this.#addEventListeners();
+    }
+
+    save() {
+        localStorage.setItem("game", JSON.stringify(this));
+    }
+
+    restart() {
+        const gameString = localStorage.getItem("game");
+        const gameInfo = gameString ? JSON.parse(gameString) : null;
+        if (gameInfo) {
+            const tmpCar = gameInfo.car;
+            this.car = new Car(tmpCar.x, tmpCar.y, tmpCar.width, tmpCar.height, tmpCar.maxSpeed, "KEY");
+            this.traffic = this.#generateTraffic();
+            this.gameOver = false;
+            this.time = Date.now().valueOf();
+            this.finalTime = null;
+        }
     }
 
     update() {
-        if (!this.gameOver) {
-            if (this.frame > 60) {
-                this.second++;
-                this.frame = 0;
-            }
+        if (this.gameOver && this.finalTime === null) {
+            const secondPassed = Date.now().valueOf() - this.time;
+            this.finalTime = parseFloat((secondPassed / 1000).toFixed(3));
+        }
 
+        if (!this.gameOver) {
             this.finishLine = this.#getFinishLine();
             this.traffic.forEach((traffic) => traffic.update(this.road.borders, []));
             this.car.update(this.road.borders, this.traffic);
 
             this.gameOver = this.#checkGameOver();
         }
+    }
 
-        this.frame++;
+    #addEventListeners() {
+        document.addEventListener('keydown', (evt) => {
+            if (evt.key === 'Enter' && this.gameOver) {
+                this.restart();
+            }
+        });
     }
 
     #checkGameOver() {
@@ -56,7 +83,12 @@ class Game {
 
             ctx.fillStyle = "yellow";
             ctx.font = "20px Arial Bold";
-            ctx.fillText("Time: " + this.second + "s", canvas.width / 2, y + 30);
+            ctx.fillText("Time: " + this.finalTime + "s", canvas.width / 2, y + 30);
+
+            ctx.fillStyle = "white";
+            ctx.font = "30px Arial Bold";
+            const txt = "Press 'ENTER' to restart";
+            ctx.fillText(txt, canvas.width / 2, canvas.height * 0.7);
         }
     }
 
@@ -72,7 +104,7 @@ class Game {
         for (let i = 0; i < N; i++) {
             random = i % 2 === 0 ? Math.floor(Math.random() * 3) : random;
             index = i % 2 === 0 ? (index !== random ? random : (random + 2) % 3) : (random + 1) % 3;
-            y = i % 2 === 0 ? (car.y - carMinDist) - carDistStep * i : y;
+            y = i % 2 === 0 ? (this.car.y - carMinDist) - carDistStep * i : y;
             traffic.push(new Car(road.getLaneCenter(index), y, 55, 90, 3, "DUMMY", getRandomColor()));
         }
 
