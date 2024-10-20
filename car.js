@@ -18,6 +18,8 @@ class Car {
         this.damage = false;
         this.invincible = false;
         this.jumping = false;
+        this.onAir = false;
+        this.jumpsLeft = 1;
         this.currentFrame = 0;
 
         this.sensor = controlType !== "DUMMY" ? null : null;
@@ -120,13 +122,17 @@ class Car {
     }
 
     #jump() {
-        if (this.controls.jump) {
+        if (this.controls.jump && this.jumpsLeft !== 0) {
             this.currentFrame = frame;
             this.invincible = true;
+
             this.jumping = true;
+            this.onAir = true;
+            this.jumpsLeft = 0;
+
             this.controls.jump = false;
         }
-        if (!this.controls.jump && this.currentFrame + 60 === frame && this.jumping) {
+        if (this.currentFrame + 60 === frame && this.jumping) {
             this.jumping = false;
         }
 
@@ -138,6 +144,7 @@ class Car {
             this.width = Math.max(55, this.width - 0.5);
             this.height = Math.max(90, this.height - 0.5);
             this.invincible = this.width !== 55;
+            this.onAir = this.height !== 90;
         }
     }
 
@@ -154,6 +161,21 @@ class Car {
     }
 
     draw(ctx) {
+        if (this.onAir) {
+            ctx.save();
+            ctx.globalAlpha = 0.8;
+            ctx.beginPath();
+            ctx.strokeStyle = "black";
+            ctx.lineWidth = 15;
+            ctx.moveTo(this.polygon[0].x, this.polygon[0].y);
+            for (let i = 1; i < this.polygon.length; i++) {
+                ctx.lineTo(this.polygon[i].x, this.polygon[i].y);
+            }
+            ctx.closePath();
+            ctx.stroke();
+            ctx.restore();
+        }
+
         ctx.beginPath();
         ctx.fillStyle = this.damage ? `#BBB` : this.color;
         ctx.moveTo(this.polygon[0].x, this.polygon[0].y);
