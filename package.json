@@ -1,0 +1,17 @@
+{
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.1",
+    "nodemailer": "^6.9.15"
+  },
+  "name": "carracegame",
+  "version": "1.0.0",
+  "main": "car.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

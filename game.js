@@ -1,8 +1,20 @@
 class Game {
-    constructor(canvas, car, road, trafficSize = 0) {
+    constructor(
+        user,
+        isMobile,
+        canvas, car,
+        road,
+        { trafficSize = 10, carMinDist = 200, carDistStep = 200 } = {}
+    ) {
+        this.user = user;
+        this.canvas = canvas;
+        this.deviceType = isMobile ? 'mobile' : 'desktop';
+
         this.car = car;
         this.road = road;
         this.trafficSize = trafficSize;
+        this.carMinDist = carMinDist;
+        this.carDistStep = carDistStep;
         this.traffic = this.#generateTraffic();
         this.finishLine = this.#getFinishLine();
 
@@ -32,6 +44,14 @@ class Game {
         }
     }
 
+    sendMail() {
+        fetch('http://localhost:3000/send-email?score=' + this.finalTime + '&humanname=' + this.user)
+            .then(response => response.text())
+            .then(data => console.log(data))
+            .catch(error => console.error('Error:', error));
+
+    }
+
     update() {
         if (this.gameOver && this.finalTime === null) {
             const secondPassed = Date.now().valueOf() - this.time;
@@ -43,20 +63,69 @@ class Game {
             this.traffic.forEach((traffic) => traffic.update(this.road.borders, []));
             this.car.update(this.road.borders, this.traffic);
 
+            this.#checkWalls();
+
             this.gameOver = this.#checkGameOver();
         }
     }
 
-    #addEventListeners() {
-        document.addEventListener('keydown', (evt) => {
-            if (evt.key === 'Enter' && this.gameOver) {
-                this.restart();
+    #generateTraffic() {
+        const traffic = [];
+
+        let index = 999;
+        let random = 1;
+        let y = 0;
+
+        for (let i = 0; i < this.trafficSize; i++) {
+            random = i % 2 === 0 ? Math.floor(Math.random() * 3) : random;
+            index = i % 2 === 0 ? (index !== random ? random : (random + 2) % 3) : (random + 1) % 3;
+            y = i % 2 === 0 ? (this.car.y - this.carMinDist) - this.carDistStep * i : y;
+            traffic.push(new Car(road.getLaneCenter(index), y, 55, 90, 3, "DUMMY", getRandomColor()));
+        }
+
+        return traffic;
+    }
+
+    #getFinishLine() {
+        return this.traffic[this.traffic.length - 1].y - 200;
+    }
+
+    #drawFinishLine(ctx, { sqWidth = 20, sqHeight = 15, col1 = "black", col2 = "white" } = {}) {
+        const sqCount = this.road.width / sqWidth;
+
+        for (let j = 0; j < 2; j++) {
+            const y = this.finishLine - (sqHeight * j);
+
+            for (let i = 0; i < sqCount; i++) {
+                ctx.beginPath();
+                if (j % 2 === 0) {
+                    ctx.fillStyle = i % 2 === 0 ? col1 : col2;
+                }
+                else {
+                    ctx.fillStyle = i % 2 === 0 ? col2 : col1;
+                }
+                const x = this.road.left + (sqWidth * i);
+                ctx.rect(x, y, sqWidth, sqHeight);
+                ctx.fill();
             }
-        });
+        }
+    }
+
+    #checkWalls() {
+        if (this.car.x + this.car.width / 2 > this.road.right) {
+            this.car.x = this.road.right - this.car.width / 2;
+        }
+        if (this.car.x - this.car.width / 2 < this.road.left) {
+            this.car.x = this.road.left + this.car.width / 2;
+        }
     }
 
     #checkGameOver() {
         return this.car.damage || this.car.y < this.finishLine;
+    }
+
+    #drawButtons(ctx) {
+        ctx.fillStyle = 'green';
     }
 
     display(ctx) {
@@ -69,6 +138,10 @@ class Game {
         this.car.draw(ctx);
 
         ctx.restore();
+
+        if (this.deviceType === 'mobile') {
+            this.#drawButtons(ctx);
+        }
 
         if (this.gameOver) {
             ctx.fillStyle = `rgba(0, 0, 0, 0.4)`;
@@ -92,45 +165,20 @@ class Game {
         }
     }
 
-    #generateTraffic(carMinDist = 200, carDistStep = 200) {
-        const traffic = [];
-
-        let index = 999;
-        let random = 1;
-        let y = 0;
-
-        const N = this.trafficSize;
-
-        for (let i = 0; i < N; i++) {
-            random = i % 2 === 0 ? Math.floor(Math.random() * 3) : random;
-            index = i % 2 === 0 ? (index !== random ? random : (random + 2) % 3) : (random + 1) % 3;
-            y = i % 2 === 0 ? (this.car.y - carMinDist) - carDistStep * i : y;
-            traffic.push(new Car(road.getLaneCenter(index), y, 55, 90, 3, "DUMMY", getRandomColor()));
-        }
-
-        return traffic;
-    }
-
-    #getFinishLine() {
-        return this.traffic[this.traffic.length - 1].y - 200;
-    }
-
-    #drawFinishLine(ctx, { sqWidth = 20, sqHeight = 15, col1 = "black", col2 = "white" } = {}) {
-        for (let j = 0; j < 2; j++) {
-            const y = this.finishLine - (sqHeight * j);
-
-            for (let i = 0; i < 20; i++) {
-                ctx.beginPath();
-                if (j % 2 === 0) {
-                    ctx.fillStyle = i % 2 === 0 ? col1 : col2;
-                }
-                else {
-                    ctx.fillStyle = i % 2 === 0 ? col2 : col1;
-                }
-                const x = sqWidth * i;
-                ctx.rect(x, y, sqWidth, sqHeight);
-                ctx.fill();
+    #addEventListeners() {
+        document.addEventListener('keydown', (evt) => {
+            if (evt.key === 'Enter' && this.gameOver) {
+                this.restart();
             }
+            if (evt.key === 'm' && this.finalTime !== null) {
+                //this.sendMail();
+            }
+        });
+
+        if (this.deviceType === 'mobile') {
+            this.canvas.addEventListener('pointerdown', (evt) =>{
+
+            });
         }
     }
 }

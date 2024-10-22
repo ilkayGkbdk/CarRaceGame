@@ -31,7 +31,6 @@ class Car {
             this.#move();
             this.#jump();
             this.#steeringCorrection();
-            this.#checkWalls();
             this.polygon = this.#createPolygon();
             this.damage = this.#assesDamage(roadBorders, traffic);
         }
@@ -120,15 +119,6 @@ class Car {
 
         this.x -= Math.sin(this.angle) * this.speed;
         this.y -= Math.cos(this.angle) * this.speed;
-    }
-
-    #checkWalls() {
-        if (this.x + this.width / 2 > canvas.width) {
-            this.x = canvas.width - this.width / 2;
-        }
-        if (this.x - this.width / 2 < 0) {
-            this.x = this.width / 2;
-        }
     }
 
     #jump() {
