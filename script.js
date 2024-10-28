@@ -11,7 +11,7 @@ let frame = 0;
 let second = 0;
 
 const road = new Road(canvas.width / 2, 320);
-const car = new Car(road.getLaneCenter(1), 200, 55, 90, 10, "KEY");
+const car = new Car(road.getLaneCenter(1), 200, 55, 90, 8, "KEY");
 
 const game = new Game(user, true, canvas, car, road, {trafficSize: 50});
 
