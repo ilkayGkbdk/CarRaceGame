@@ -1,14 +1,12 @@
 class Game {
     constructor(
         user,
-        isMobile,
         canvas, car,
         road,
-        { trafficSize = 10, carMinDist = 200, carDistStep = 200 } = {}
+        { trafficSize = 10, carMinDist = 300, carDistStep = 200 } = {}
     ) {
         this.user = user;
         this.canvas = canvas;
-        this.deviceType = isMobile ? 'mobile' : 'desktop';
 
         this.car = car;
         this.road = road;
@@ -32,6 +30,9 @@ class Game {
     }
 
     restart() {
+        this.car = null;
+        this.traffic = [];
+
         const gameString = localStorage.getItem("game");
         const gameInfo = gameString ? JSON.parse(gameString) : null;
         if (gameInfo) {
@@ -60,8 +61,12 @@ class Game {
 
         if (!this.gameOver) {
             this.finishLine = this.#getFinishLine();
-            this.traffic.forEach((traffic) => traffic.update(this.road.borders, []));
+            this.traffic.forEach((traffic) => traffic.update([], []));
             this.car.update(this.road.borders, this.traffic);
+
+            if (this.car.y < this.traffic[0].y - this.carDistStep * 2) {
+                this.traffic.shift();
+            }
 
             this.#checkWalls();
 
@@ -80,6 +85,7 @@ class Game {
             random = i % 2 === 0 ? Math.floor(Math.random() * 3) : random;
             index = i % 2 === 0 ? (index !== random ? random : (random + 2) % 3) : (random + 1) % 3;
             y = i % 2 === 0 ? (this.car.y - this.carMinDist) - this.carDistStep * i : y;
+            const test = i % 2 === 0 ? 0 : 2;
             traffic.push(new Car(road.getLaneCenter(index), y, 55, 90, 3, "DUMMY", getRandomColor()));
         }
 
@@ -124,10 +130,6 @@ class Game {
         return this.car.damage || this.car.y < this.finishLine;
     }
 
-    #drawButtons(ctx) {
-        ctx.fillStyle = 'green';
-    }
-
     display(ctx) {
         ctx.save();
         ctx.translate(0, -this.car.y + canvas.height * 0.7);
@@ -138,10 +140,6 @@ class Game {
         this.car.draw(ctx);
 
         ctx.restore();
-
-        if (this.deviceType === 'mobile') {
-            this.#drawButtons(ctx);
-        }
 
         if (this.gameOver) {
             ctx.fillStyle = `rgba(0, 0, 0, 0.4)`;
@@ -174,11 +172,5 @@ class Game {
                 //this.sendMail();
             }
         });
-
-        if (this.deviceType === 'mobile') {
-            this.canvas.addEventListener('pointerdown', (evt) =>{
-
-            });
-        }
     }
 }

@@ -2,6 +2,8 @@ class Car {
     constructor(x, y, width, height, maxSpeed, controlType, color = `#151B8D`) {
         this.x = x;
         this.y = y;
+        this.defaultW = width;
+        this.defaultH = height;
         this.width = width;
         this.height = height;
         this.color = color;
@@ -12,8 +14,8 @@ class Car {
         this.maxSpeed = maxSpeed;
         this.friction = 0.05;
         this.angle = 0;
-        this.steerSens = 0.05;
-        this.steeringCorrectionSens = 0.025;
+        this.steerSens = 0.06;
+        this.steeringCorrectionSens = this.steerSens / 2;
 
         this.damage = false;
         this.invincible = false;
@@ -141,10 +143,10 @@ class Car {
             this.height += 0.5;
         }
         else {
-            this.width = Math.max(55, this.width - 0.5);
-            this.height = Math.max(90, this.height - 0.5);
-            this.invincible = this.width !== 55;
-            this.onAir = this.height !== 90;
+            this.width = Math.max(this.defaultW, this.width - 0.5);
+            this.height = Math.max(this.defaultH, this.height - 0.5);
+            this.invincible = this.width !== this.defaultW;
+            this.onAir = this.height !== this.defaultH;
         }
     }
 
