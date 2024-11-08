@@ -1,7 +1,9 @@
 class Car {
+    static height3D = 2000;
+
     constructor(x, y, width, height, maxSpeed, controlType, color = `#151B8D`) {
-        this.x = x;
-        this.y = y;
+
+        this.center = new Vector(x, y);
         this.defaultW = width;
         this.defaultH = height;
         this.width = width;
@@ -14,7 +16,7 @@ class Car {
         this.maxSpeed = maxSpeed;
         this.friction = 0.05;
         this.angle = 0;
-        this.steerSens = 0.06;
+        this.steerSens = 0.05;
         this.steeringCorrectionSens = this.steerSens / 2;
 
         this.damage = false;
@@ -24,6 +26,7 @@ class Car {
         this.jumpsLeft = 1;
         this.currentFrame = 0;
 
+        this.controlType = controlType;
         this.sensor = controlType !== "DUMMY" ? null : null;
         this.controls = new Controls(controlType);
     }
@@ -47,12 +50,12 @@ class Car {
         }
 
         for (let i = 0; i < roadBorders.length; i++) {
-            if (polysIntersect(this.polygon, roadBorders[i])) {
+            if (polysIntersect(this.polygon.points, roadBorders[i])) {
                 return true;
             }
         }
         for (let i = 0; i < traffic.length; i++) {
-            if (polysIntersect(this.polygon, traffic[i].polygon)) {
+            if (polysIntersect(this.polygon.points, traffic[i].polygon.points)) {
                 return true;
             }
         }
@@ -64,24 +67,24 @@ class Car {
         const rad = Math.hypot(this.width, this.height) / 2;
         const alpha = Math.atan2(this.width, this.height);
 
-        points.push({
-            x: this.x - Math.sin(this.angle - alpha) * rad,
-            y: this.y - Math.cos(this.angle - alpha) * rad
-        });
-        points.push({
-            x: this.x - Math.sin(this.angle + alpha) * rad,
-            y: this.y - Math.cos(this.angle + alpha) * rad
-        });
-        points.push({
-            x: this.x - Math.sin(this.angle - alpha + Math.PI) * rad,
-            y: this.y - Math.cos(this.angle - alpha + Math.PI) * rad
-        });
-        points.push({
-            x: this.x - Math.sin(this.angle + alpha + Math.PI) * rad,
-            y: this.y - Math.cos(this.angle + alpha + Math.PI) * rad
-        });
+        points.push(new Vector(
+            this.center.x - Math.sin(this.angle - alpha) * rad,
+            this.center.y - Math.cos(this.angle - alpha) * rad
+        ));
+        points.push(new Vector(
+            this.center.x - Math.sin(this.angle + alpha) * rad,
+            this.center.y - Math.cos(this.angle + alpha) * rad
+        ));
+        points.push(new Vector(
+            this.center.x - Math.sin(this.angle - alpha + Math.PI) * rad,
+            this.center.y - Math.cos(this.angle - alpha + Math.PI) * rad
+        ));
+        points.push(new Vector(
+            this.center.x - Math.sin(this.angle + alpha + Math.PI) * rad,
+            this.center.y - Math.cos(this.angle + alpha + Math.PI) * rad
+        ));
 
-        return points;
+        return new Polygon(points);
     }
 
     #move() {
@@ -119,8 +122,8 @@ class Car {
             this.speed = 0;
         }
 
-        this.x -= Math.sin(this.angle) * this.speed;
-        this.y -= Math.cos(this.angle) * this.speed;
+        this.center.x -= Math.sin(this.angle) * this.speed;
+        this.center.y -= Math.cos(this.angle) * this.speed;
     }
 
     #jump() {
@@ -162,6 +165,22 @@ class Car {
         }
     }
 
+    static render(ctx, center, distToCar) {
+        const scaledHeight = Car.height3D / distToCar;
+
+        ctx.save();
+        ctx.translate(center.x, center.y);
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 2;
+
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(0, -scaledHeight);
+        ctx.stroke();
+
+        ctx.restore();
+    }
+
     draw(ctx) {
         if (this.onAir) {
             ctx.save();
@@ -169,10 +188,7 @@ class Car {
             ctx.beginPath();
             ctx.strokeStyle = "black";
             ctx.lineWidth = 15;
-            ctx.moveTo(this.polygon[0].x, this.polygon[0].y);
-            for (let i = 1; i < this.polygon.length; i++) {
-                ctx.lineTo(this.polygon[i].x, this.polygon[i].y);
-            }
+            this.polygon.draw(ctx, { fill: this.color });
             ctx.closePath();
             ctx.stroke();
             ctx.restore();
@@ -180,10 +196,7 @@ class Car {
 
         ctx.beginPath();
         ctx.fillStyle = this.damage ? `#BBB` : this.color;
-        ctx.moveTo(this.polygon[0].x, this.polygon[0].y);
-        for (let i = 1; i < this.polygon.length; i++) {
-            ctx.lineTo(this.polygon[i].x, this.polygon[i].y);
-        }
+        this.polygon.draw(ctx, { fill: this.color });
         ctx.fill();
 
         if (this.sensor) {

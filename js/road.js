@@ -11,10 +11,10 @@ class Road {
         this.top = ROAD_END;
         this.bottom = -ROAD_END;
 
-        const topLeft = { x: this.left, y: this.top };
-        const bottomLeft = { x: this.left, y: this.bottom };
-        const topRight = { x: this.right, y: this.top };
-        const bottomRight = { x: this.right, y: this.bottom };
+        const topLeft = new Vector(this.left, this.top);
+        const bottomLeft = new Vector(this.left, this.bottom);
+        const topRight = new Vector(this.right, this.top);
+        const bottomRight = new Vector(this.right, this.bottom);
         this.borders = [
             [topLeft, bottomLeft],
             [topRight, bottomRight]
