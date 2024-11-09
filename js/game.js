@@ -149,7 +149,7 @@ class Game {
         this.#drawFinishLine(this.topCtx);
         this.traffic.forEach((traffic) => traffic.draw(this.topCtx));
         this.car.draw(this.topCtx);
-        this.camera.draw(this.topCtx);
+        //this.camera.draw(this.topCtx);
 
         this.topCtx.restore();
 
