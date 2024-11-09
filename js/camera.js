@@ -5,14 +5,23 @@ class Camera {
     constructor(center, target) {
         this.center = center;
         this.target = target;
+        this.centerFlex = 300;
+        this.cameraLockOnTarget = true;
 
         this.fovAngle = Math.PI / 1.1;
         this.z = -100;
+
+        this.update();
     }
 
     update() {
         const t = 0.2;
-        this.center = lerp2D(this.center, Vector.add(this.target.center, new Vector(0, 300)), t);
+        if (this.cameraLockOnTarget) {
+            this.center = lerp2D(this.center, Vector.add(this.target.center, new Vector(0, this.centerFlex)), t);
+        }
+        else {
+            this.center = lerp2D(this.center, Vector.add(new Vector(this.center.x, this.target.center.y), new Vector(0, this.centerFlex)), t);
+        }
 
         const frontOffset = Vector.toPolar(0., Camera.maximumFOV);
         this.front = Vector.subtract(this.center, frontOffset);
@@ -64,13 +73,15 @@ class Camera {
         return extrudedPolys;
     }
 
-    render(ctx, entities, mainCar) {
+    render(ctx, entities, mainCar, roadPolysLeft, roadPolysRight) {
         entities.cars = entities.cars.sort((a, b) => distance(this.center, a.center) - distance(this.center, b.center));
         entities.polys = entities.polys.concat(mainCar).sort((a, b) => distance(this.center, a.points[2]) - distance(this.center, b.points[2]));
 
         const seg = [this.center, this.front];
         const extrudedPolys = this.#extrude(entities.polys, 20);
         const mainExPoly = this.#extrude(mainCar, 20);
+        const roadExPolyLeft = this.#extrude(roadPolysLeft);
+        const roadExPolyRight = this.#extrude(roadPolysRight);
 
         const projPolys = extrudedPolys.map((poly) =>
             new Polygon(
@@ -84,11 +95,28 @@ class Camera {
             )
         );
 
+        const roadProjPolyLeft = roadExPolyLeft.map((poly) =>
+            new Polygon(
+                poly.points.map(p => this.#projectPoint(p, seg, ctx.canvas))
+            )
+        );
+        const roadProjPolyRight = roadExPolyRight.map((poly) =>
+            new Polygon(
+                poly.points.map(p => this.#projectPoint(p, seg, ctx.canvas))
+            )
+        );
+
+        for (const poly of roadProjPolyLeft) {
+            poly.draw(ctx, { fill: 'black', strokeStyle: 'white' });
+        }
+        for (const poly of roadProjPolyRight) {
+            poly.draw(ctx, { fill: 'black', strokeStyle: 'white' });
+        }
         for (const poly of projPolys) {
-            poly.draw(ctx, { fill: 'orange' });
+            poly.draw(ctx, { fill: 'orange', strokeStyle: 'orange' });
         }
         for (const poly of mainProjPoly) {
-            poly.draw(ctx);
+            poly.draw(ctx, { strokeStyle: 'blue' });
         }
     }
 

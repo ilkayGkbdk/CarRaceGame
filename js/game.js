@@ -149,7 +149,7 @@ class Game {
         this.#drawFinishLine(this.topCtx);
         this.traffic.forEach((traffic) => traffic.draw(this.topCtx));
         this.car.draw(this.topCtx);
-        //this.camera.draw(this.topCtx);
+        this.camera.draw(this.topCtx);
 
         this.topCtx.restore();
 
@@ -161,6 +161,8 @@ class Game {
     #render(fov) {
         const polys = this.traffic.map((t) => t.polygon);
         const cars = this.traffic;
+        const roadPolysLeft = this.road.borders[0];
+        const roadPolysRight = this.road.borders[1];
 
         const inViewCars = [];
         for (let i = 0; i < cars.length; i++) {
@@ -180,17 +182,36 @@ class Game {
             }
         }
 
+        const inViewLeftBorders = [];
+        for (let i = 0; i < roadPolysLeft.length; i++) {
+            const poly = roadPolysLeft[i];
+            const points = poly.points;
+            if (points.map(p => pointInTriangle(p, fov))[1]) {
+                inViewLeftBorders.push(poly);
+            }
+        }
+
+        const inViewRightBorders = [];
+        for (let i = 0; i < roadPolysRight.length; i++) {
+            const poly = roadPolysRight[i];
+            const points = poly.points;
+            if (points.map(p => pointInTriangle(p, fov))[1]) {
+                inViewRightBorders.push(poly);
+            }
+        }
+
         const entities = {
             cars: inViewCars,
             polys: inViewPolys
         }
 
-        this.camera.render(this.cameraCtx, entities, [this.car.polygon]);
+        this.camera.render(this.cameraCtx, entities, [this.car.polygon], inViewLeftBorders, inViewRightBorders);
     }
 
     display() {
-        const fov = this.#update();
+
         this.#draw();
+        const fov = this.#update();
         this.#render(fov);
     }
 
@@ -226,6 +247,9 @@ class Game {
             if (evt.key === 't' || evt.key === 'T') {
                 is3D = !is3D;
                 checkIs3D();
+            }
+            if (evt.key === 'l' || evt.key === 'L') {
+                this.camera.cameraLockOnTarget = !this.camera.cameraLockOnTarget;
             }
         });
     }

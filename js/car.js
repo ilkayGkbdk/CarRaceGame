@@ -50,8 +50,10 @@ class Car {
         }
 
         for (let i = 0; i < roadBorders.length; i++) {
-            if (polysIntersect(this.polygon.points, roadBorders[i])) {
-                return true;
+            for (let j = 0; j < roadBorders[i].length; j++) {
+                if (polysIntersect(this.polygon.points, roadBorders[i][j].points)) {
+                    return true;
+                }
             }
         }
         for (let i = 0; i < traffic.length; i++) {
@@ -163,22 +165,6 @@ class Car {
         if (Math.abs(this.angle) < this.steeringCorrectionSens) {
             this.angle = 0;
         }
-    }
-
-    static render(ctx, center, distToCar) {
-        const scaledHeight = Car.height3D / distToCar;
-
-        ctx.save();
-        ctx.translate(center.x, center.y);
-        ctx.strokeStyle = 'black';
-        ctx.lineWidth = 2;
-
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(0, -scaledHeight);
-        ctx.stroke();
-
-        ctx.restore();
     }
 
     draw(ctx) {
