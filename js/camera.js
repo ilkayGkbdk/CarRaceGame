@@ -82,15 +82,12 @@ class Camera {
         return extrudedPolys;
     }
 
-    render(ctx, entities, mainCar, roadPolysLeft, roadPolysRight) {
-        entities.cars = entities.cars.sort((a, b) => distance(this.center, a.center) - distance(this.center, b.center));
-        entities.polys = entities.polys.concat(mainCar).sort((a, b) => distance(this.center, a.points[2]) - distance(this.center, b.points[2]));
+    render(ctx, cars, roadBordersPolys) {
+        cars = cars.sort((a, b) => distance(this.center, b.center) - distance(this.center, a.center));
 
         const seg = [this.center, this.front];
-        const extrudedPolys = this.#extrude(entities.polys, 20);
-        const mainExPoly = this.#extrude(mainCar, 20);
-        const roadExPolyLeft = this.#extrude(roadPolysLeft);
-        const roadExPolyRight = this.#extrude(roadPolysRight);
+        const extrudedPolys = this.#extrude(cars.map(c => c.polygon), 20);
+        const roadBordersExPolys = this.#extrude(roadBordersPolys);
 
         const projPolys = extrudedPolys.map((poly) =>
             new Polygon(
@@ -98,34 +95,28 @@ class Camera {
             )
         );
 
-        const mainProjPoly = mainExPoly.map((poly) =>
+        const roadBordersProjPolys = roadBordersExPolys.map((poly) =>
             new Polygon(
                 poly.points.map(p => this.#projectPoint(p, seg, ctx.canvas))
             )
         );
 
-        const roadProjPolyLeft = roadExPolyLeft.map((poly) =>
-            new Polygon(
-                poly.points.map(p => this.#projectPoint(p, seg, ctx.canvas))
-            )
-        );
-        const roadProjPolyRight = roadExPolyRight.map((poly) =>
-            new Polygon(
-                poly.points.map(p => this.#projectPoint(p, seg, ctx.canvas))
-            )
-        );
+        for (const poly of roadBordersProjPolys) {
+            poly.draw(ctx, { fill: 'black', strokeStyle: 'white' });
+        }
 
-        for (const poly of roadProjPolyLeft) {
-            poly.draw(ctx, { fill: 'black', strokeStyle: 'white' });
-        }
-        for (const poly of roadProjPolyRight) {
-            poly.draw(ctx, { fill: 'black', strokeStyle: 'white' });
-        }
+        let i = 0;
+        let j = 0;
         for (const poly of projPolys) {
-            poly.draw(ctx, { fill: 'orange', strokeStyle: 'orange' });
-        }
-        for (const poly of mainProjPoly) {
-            poly.draw(ctx, { strokeStyle: 'blue' });
+            let color = 'orange';
+            if (cars[j].controlType === "KEY") {
+                color = 'blue';
+            }
+            poly.draw(ctx, { fill: color, strokeStyle: color });
+            i++;
+            if (i % 5 === 0) {
+                j++;
+            }
         }
     }
 

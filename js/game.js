@@ -201,10 +201,8 @@ class Game {
     }
 
     #render(fov) {
-        const polys = this.traffic.map((t) => t.polygon);
-        const cars = this.traffic;
-        const roadPolysLeft = this.road.borders[0];
-        const roadPolysRight = this.road.borders[1];
+        const cars = this.traffic.concat(this.car);
+        const roadBorders = this.road.borders[0].concat(this.road.borders[1]);
 
         const inViewCars = [];
         for (let i = 0; i < cars.length; i++) {
@@ -215,39 +213,16 @@ class Game {
             }
         }
 
-        const inViewPolys = [];
-        for (let i = 0; i < polys.length; i++) {
-            const poly = polys[i];
-            const points = poly.points;
-            if (points.map(p => pointInTriangle(p, fov))[2]) {
-                inViewPolys.push(poly);
-            }
-        }
-
-        const inViewLeftBorders = [];
-        for (let i = 0; i < roadPolysLeft.length; i++) {
-            const poly = roadPolysLeft[i];
+        const inViewBorders = [];
+        for (let i = 0; i < roadBorders.length; i++) {
+            const poly = roadBorders[i];
             const points = poly.points;
             if (points.map(p => pointInTriangle(p, fov))[1]) {
-                inViewLeftBorders.push(poly);
+                inViewBorders.push(poly);
             }
         }
 
-        const inViewRightBorders = [];
-        for (let i = 0; i < roadPolysRight.length; i++) {
-            const poly = roadPolysRight[i];
-            const points = poly.points;
-            if (points.map(p => pointInTriangle(p, fov))[1]) {
-                inViewRightBorders.push(poly);
-            }
-        }
-
-        const entities = {
-            cars: inViewCars,
-            polys: inViewPolys
-        }
-
-        this.camera.render(this.cameraCtx, entities, [this.car.polygon], inViewLeftBorders, inViewRightBorders);
+        this.camera.render(this.cameraCtx, inViewCars, inViewBorders);
     }
 
     display() {
