@@ -11,7 +11,7 @@ class Road {
         this.top = ROAD_END;
         this.bottom = -ROAD_END / 2;
 
-        const borderMaxLength = 200;
+        const borderMaxLength = 100;
         const leftBorders = [];
         const rightBorders = [];
         let yStart = this.bottom;

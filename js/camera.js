@@ -6,6 +6,7 @@ class Camera {
         this.center = center;
         this.target = target;
         this.centerFlex = 300;
+        this.perspective = 'TP';
         this.cameraLockOnTarget = true;
 
         this.fovAngle = Math.PI / 1.1;
@@ -16,20 +17,28 @@ class Camera {
 
     update() {
         const t = 0.2;
-        if (this.cameraLockOnTarget) {
-            this.center = lerp2D(this.center, Vector.add(this.target.center, new Vector(0, this.centerFlex)), t);
+        if (this.perspective === 'FP') {
+            this.center = this.target.center;
+            this.z = -50;
         }
         else {
-            this.center = lerp2D(this.center, Vector.add(new Vector(this.center.x, this.target.center.y), new Vector(0, this.centerFlex)), t);
+            this.z = -100;
+            if (this.cameraLockOnTarget) {
+                this.center = lerp2D(this.center, Vector.add(this.target.center, new Vector(0, this.centerFlex)), t);
+            } else {
+                this.center = lerp2D(this.center, Vector.add(new Vector(this.center.x, this.target.center.y), new Vector(0, this.centerFlex)), t);
+            }
         }
 
-        const frontOffset = Vector.toPolar(0., Camera.maximumFOV);
+        const dir = this.perspective === 'FP' ? this.target.angle : 0;
+
+        const frontOffset = Vector.toPolar(dir, Camera.maximumFOV);
         this.front = Vector.subtract(this.center, frontOffset);
 
-        const leftOffset = Vector.toPolar(this.fovAngle / 2, Camera.maximumFOV);
+        const leftOffset = Vector.toPolar(dir + this.fovAngle / 2, Camera.maximumFOV);
         this.left = Vector.subtract(this.center, leftOffset);
 
-        const rightOffset = Vector.toPolar(-this.fovAngle / 2, Camera.maximumFOV);
+        const rightOffset = Vector.toPolar(dir - this.fovAngle / 2, Camera.maximumFOV);
         this.right = Vector.subtract(this.center, rightOffset);
 
         return [this.left, this.center, this.right];

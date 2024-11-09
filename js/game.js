@@ -24,6 +24,7 @@ class Game {
 
         this.camera = new Camera(this.car.center, this.car);
 
+        this.gameStart = false;
         this.gameOver = false;
 
         this.time = Date.now().valueOf();
@@ -47,7 +48,10 @@ class Game {
             const tmpCar = gameInfo.car;
             this.car = new Car(tmpCar.center.x, tmpCar.center.y, tmpCar.width, tmpCar.height, tmpCar.maxSpeed, "KEY");
             this.traffic = this.#generateTraffic();
-            this.camera = new Camera(tmpCar.center, this.car);
+            const tmpCamera = new Camera(tmpCar.center, this.car);
+            tmpCamera.perspective = gameInfo.camera.perspective;
+            tmpCamera.cameraLockOnTarget = gameInfo.camera.cameraLockOnTarget;
+            this.camera = tmpCamera;
             this.gameOver = false;
             this.time = Date.now().valueOf();
             this.finalTime = null;
@@ -139,11 +143,49 @@ class Game {
         return this.car.damage || this.car.center.y < this.finishLine;
     }
 
+    #drawHelpBox() {
+        const ctx = is3D ? this.cameraCtx : this.topCtx;
+        const width = 270;
+        const height = 300;
+        const margin  = 20;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.fillStyle = 'black';
+        ctx.rect(margin, margin * 6, width, height);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.fillStyle = 'white';
+        ctx.rect(margin * 2, margin * 7, width - margin * 2, height - margin * 2);
+        ctx.fill();
+        ctx.restore();
+
+        this.topCtx.beginPath();
+        this.topCtx.font = 'Bold 20px Arial';
+        this.topCtx.textBaseline = 'middle';
+        this.topCtx.fillStyle = 'black';
+        this.topCtx.fillText("- Hold down 'W' to", margin * 3, margin * 8);
+        this.topCtx.fillText("start.", margin * 3, margin * 9);
+        this.topCtx.fillText("- For 3D, press 'T'.", margin * 3, margin * 12);
+
+        this.cameraCtx.beginPath();
+        this.cameraCtx.font = 'Bold 20px Arial';
+        this.cameraCtx.textBaseline = 'middle';
+        this.cameraCtx.fillStyle = 'black';
+        this.cameraCtx.fillText("- Press 'L' to change", margin * 3, margin * 8);
+        this.cameraCtx.fillText("the camera lock.", margin * 3, margin * 9);
+        this.cameraCtx.fillText("- Press 'V' to change", margin * 3, margin * 12);
+        this.cameraCtx.fillText("perspective.", margin * 3, margin * 13);
+        this.cameraCtx.fillText("- For 2D, press 'T'.", margin * 3, margin * 15);
+    }
+
     #draw() {
         this.cameraCtx.clearRect(0, 0, this.cameraCanvas.width, this.cameraCanvas.height);
 
         this.topCtx.save();
         this.topCtx.translate(0, -this.car.center.y + this.topCanvas.height * 0.7);
+        this.#drawHelpBox();
 
         this.road.draw(this.topCtx);
         this.#drawFinishLine(this.topCtx);
@@ -209,7 +251,6 @@ class Game {
     }
 
     display() {
-
         this.#draw();
         const fov = this.#update();
         this.#render(fov);
@@ -250,6 +291,13 @@ class Game {
             }
             if (evt.key === 'l' || evt.key === 'L') {
                 this.camera.cameraLockOnTarget = !this.camera.cameraLockOnTarget;
+            }
+            if (evt.key === 'v' || evt.key === 'V') {
+                const perspective = this.camera.perspective;
+                this.camera.perspective = perspective === 'TP' ? 'FP' : 'TP';
+            }
+            if (evt.key === 'w') {
+                this.gameStart = true;
             }
         });
     }

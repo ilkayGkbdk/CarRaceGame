@@ -27,7 +27,7 @@ function animate() {
         second++;
     }
 
-    ctx.clearRect(0, 0, topCanvas.width, topCanvas.height);
+    checkIs3D();
     ctx.fillStyle = `#8FBC8FFF`;
     ctx.fillRect(0, 0, road.left - 40, topCanvas.height);
     ctx.fillRect(road.right + 40, 0, topCanvas.width, topCanvas.height);

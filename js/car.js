@@ -172,9 +172,7 @@ class Car {
             ctx.save();
             ctx.globalAlpha = 0.8;
             ctx.beginPath();
-            ctx.strokeStyle = "black";
-            ctx.lineWidth = 15;
-            this.polygon.draw(ctx, { fill: this.color });
+            this.polygon.draw(ctx, { fill: this.color, strokeStyle: 'black', lineWidth: 15 });
             ctx.closePath();
             ctx.stroke();
             ctx.restore();
