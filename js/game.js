@@ -3,7 +3,6 @@ class Game {
         user,
         topCanvas,
         cameraCanvas,
-        car,
         road,
         { trafficSize = 10, carMinDist = 300, carDistStep = 200 } = {}
     ) {
@@ -14,7 +13,7 @@ class Game {
         this.topCtx = this.topCanvas.getContext('2d');
         this.cameraCtx = this.cameraCanvas.getContext('2d');
 
-        this.car = car;
+        this.car = new Car(road.getLaneCenter(1), 200, 55, 90, 15, "KEY");
         this.road = road;
         this.trafficSize = trafficSize;
         this.carMinDist = carMinDist;
@@ -27,8 +26,8 @@ class Game {
         this.gameStart = false;
         this.gameOver = false;
 
-        this.time = Date.now().valueOf();
-        this.finalTime = null;
+        this.fov = this.#update();
+        this.#render(this.fov);
 
         this.save();
         this.#addEventListeners();
@@ -52,8 +51,9 @@ class Game {
             tmpCamera.perspective = gameInfo.camera.perspective;
             tmpCamera.cameraLockOnTarget = gameInfo.camera.cameraLockOnTarget;
             this.camera = tmpCamera;
+            this.gameStart = false;
             this.gameOver = false;
-            this.time = Date.now().valueOf();
+            this.fov = this.#update();
             this.finalTime = null;
         }
     }
@@ -227,8 +227,10 @@ class Game {
 
     display() {
         this.#draw();
-        const fov = this.#update();
-        this.#render(fov);
+        if (this.gameStart) {
+            this.fov = this.#update();
+        }
+        this.#render(this.fov);
     }
 
     #drawGameOverScreen(ctx) {
@@ -270,9 +272,14 @@ class Game {
             if (evt.key === 'v' || evt.key === 'V') {
                 const perspective = this.camera.perspective;
                 this.camera.perspective = perspective === 'TP' ? 'FP' : 'TP';
+                this.fov = this.#update();
             }
-            if (evt.key === 'w') {
-                this.gameStart = true;
+            if (!this.gameStart) {
+                if (evt.key === 'w') {
+                    this.gameStart = true;
+                    this.time = Date.now().valueOf();
+                    this.finalTime = null;
+                }
             }
         });
     }

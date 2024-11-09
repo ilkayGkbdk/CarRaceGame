@@ -16,9 +16,7 @@ let frame = 0;
 let second = 0;
 
 const road = new Road(window.innerWidth / 2, 320);
-const car = new Car(road.getLaneCenter(1), 200, 55, 90, 15, "KEY");
-
-const game = new Game(user, topCanvas, cameraCanvas, car, road, {trafficSize: 50});
+const game = new Game(user, topCanvas, cameraCanvas, road, {trafficSize: 50});
 
 animate();
 
