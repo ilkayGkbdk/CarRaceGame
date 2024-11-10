@@ -287,5 +287,12 @@ class Game {
                 }
             }
         });
+
+        topCanvas.addEventListener('contextmenu', (evt) =>{
+            evt.preventDefault();
+        });
+        cameraCanvas.addEventListener('contextmenu', (evt) =>{
+            evt.preventDefault();
+        });
     }
 }
