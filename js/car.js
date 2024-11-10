@@ -97,7 +97,7 @@ class Car {
             this.speed -= this.acceleration;
         }
         if (this.speed !== 0) {
-            if (this.controls.tilt) {
+            if (this.controls.tilt !== null) {
                 this.angle -= this.controls.tilt * 0.03;
             }
             else {
