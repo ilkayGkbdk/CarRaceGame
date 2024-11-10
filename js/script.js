@@ -11,7 +11,7 @@ let is3D = false;
 checkIs3D();
 
 let user = 'ilkay';
-const isMobileDevice = /Mobi|Android/i.test(navigator.userAgent);
+const isMobileDevice = detectMob();
 console.log(isMobileDevice);
 
 let frame = 0;
@@ -47,4 +47,20 @@ function checkIs3D() {
         cameraCanvas.width = 0;
         topCanvas.width = window.innerWidth;
     }
+}
+
+function detectMob() {
+    const toMatch = [
+        /Android/i,
+        /webOS/i,
+        /iPhone/i,
+        /iPad/i,
+        /iPod/i,
+        /BlackBerry/i,
+        /Windows Phone/i
+    ];
+
+    return toMatch.some((toMatchItem) => {
+        return navigator.userAgent.match(toMatchItem);
+    });
 }

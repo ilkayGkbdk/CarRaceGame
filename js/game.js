@@ -14,7 +14,6 @@ class Game {
         this.cameraCtx = this.cameraCanvas.getContext('2d');
 
         this.car = new Car(road.getLaneCenter(1), 200, 55, 90, 15, "KEY");
-        this.car.controls = isMobile ? new PhoneControls(cameraCanvas) : this.car.controls;
         this.road = road;
         this.trafficSize = trafficSize;
         this.carMinDist = carMinDist;
@@ -24,8 +23,13 @@ class Game {
 
         this.camera = new Camera(this.car.center, this.car);
 
-        this.gameStart = isMobile;
+        this.gameStart = false;
         this.gameOver = false;
+
+        if (isMobile) {
+            this.car.controls = isMobile ? new PhoneControls(cameraCanvas) : this.car.controls;
+            this.gameStart = true;
+        }
 
         this.fov = this.#update();
         this.#render(this.fov);
