@@ -11,12 +11,14 @@ let is3D = false;
 checkIs3D();
 
 let user = 'ilkay';
+const isMobileDevice = /Mobi|Android/i.test(navigator.userAgent);
+console.log(isMobileDevice);
 
 let frame = 0;
 let second = 0;
 
 const road = new Road(window.innerWidth / 2, 320);
-const game = new Game(user, topCanvas, cameraCanvas, road, {trafficSize: 50});
+const game = new Game(isMobileDevice, topCanvas, cameraCanvas, road, {trafficSize: 50});
 
 animate();
 

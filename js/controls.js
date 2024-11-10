@@ -13,38 +13,34 @@ class Controls {
 
     #addEventListeners() {
         document.addEventListener('keydown', (evt) => {
-            switch (evt.key) {
-                case "w":
-                    this.forward = true;
-                    break;
-                case "a":
-                    this.left = true;
-                    break;
-                case "s":
-                    this.backward = true;
-                     break;
-                case "d":
-                    this.right = true;
-                    break;
-                case " ":
-                    this.jump = true;
-                    break;
+            if (evt.key === 'w' || evt.key === 'W') {
+                this.forward = true;
+            }
+            else if (evt.key === 'a' || evt.key === 'A') {
+                this.left = true;
+            }
+            else if (evt.key === 's' || evt.key === 'S') {
+                this.backward = true;
+            }
+            else if (evt.key === 'd' || evt.key === 'D') {
+                this.right = true;
+            }
+            else if (evt.key === ' ') {
+                this.jump = true;
             }
         });
         document.addEventListener('keyup', (evt) => {
-            switch (evt.key) {
-                case "w":
-                    this.forward = false;
-                    break;
-                case "a":
-                    this.left = false;
-                    break;
-                case "s":
-                    this.backward = false;
-                    break;
-                case "d":
-                    this.right = false;
-                    break;
+            if (evt.key === 'w' || evt.key === 'W') {
+                this.forward = false;
+            }
+            else if (evt.key === 'a' || evt.key === 'A') {
+                this.left = false;
+            }
+            else if (evt.key === 's' || evt.key === 'S') {
+                this.backward = false;
+            }
+            else if (evt.key === 'd' || evt.key === 'D') {
+                this.right = false;
             }
         });
     }

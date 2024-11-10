@@ -1,12 +1,12 @@
 class Game {
     constructor(
-        user,
+        isMobile,
         topCanvas,
         cameraCanvas,
         road,
         { trafficSize = 10, carMinDist = 300, carDistStep = 200 } = {}
     ) {
-        this.user = user;
+        this.user = "user";
         this.topCanvas = topCanvas;
         this.cameraCanvas = cameraCanvas;
 
@@ -14,6 +14,7 @@ class Game {
         this.cameraCtx = this.cameraCanvas.getContext('2d');
 
         this.car = new Car(road.getLaneCenter(1), 200, 55, 90, 15, "KEY");
+        this.car.controls = isMobile ? new PhoneControls(cameraCanvas) : this.car.controls;
         this.road = road;
         this.trafficSize = trafficSize;
         this.carMinDist = carMinDist;
@@ -77,7 +78,7 @@ class Game {
             this.traffic.forEach((traffic) => traffic.update([], []));
             this.car.update(this.road.borders, this.traffic);
 
-            if (this.car.y < this.traffic[0].y - this.carDistStep * 2) {
+            if (this.car.center.y < this.traffic[0].center.y - this.carDistStep * 2) {
                 this.traffic.shift();
             }
             this.#checkWalls();
@@ -177,7 +178,7 @@ class Game {
         this.cameraCtx.fillText("the camera lock.", margin * 3, margin * 9);
         this.cameraCtx.fillText("- Press 'V' to change", margin * 3, margin * 12);
         this.cameraCtx.fillText("perspective.", margin * 3, margin * 13);
-        this.cameraCtx.fillText("- For 2D, press 'T'.", margin * 3, margin * 15);
+        this.cameraCtx.fillText("- For 2D, press 'T'.", margin * 3, margin * 16);
     }
 
     #draw() {
@@ -275,7 +276,7 @@ class Game {
                 this.fov = this.#update();
             }
             if (!this.gameStart) {
-                if (evt.key === 'w') {
+                if (evt.key === 'w' || evt.key === 'W') {
                     this.gameStart = true;
                     this.time = Date.now().valueOf();
                     this.finalTime = null;
