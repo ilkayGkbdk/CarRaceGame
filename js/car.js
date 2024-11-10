@@ -97,7 +97,8 @@ class Car {
             this.speed -= this.acceleration;
         }
         if (this.speed !== 0) {
-            if (this.controls.tilt) {
+            if (this.controlType === "PHONE") {
+                console.log("hey");
                 this.angle -= this.controls.tilt * 0.03;
             }
             else {
