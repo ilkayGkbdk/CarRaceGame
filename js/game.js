@@ -24,7 +24,7 @@ class Game {
 
         this.camera = new Camera(this.car.center, this.car);
 
-        this.gameStart = false;
+        this.gameStart = isMobile;
         this.gameOver = false;
 
         this.fov = this.#update();
