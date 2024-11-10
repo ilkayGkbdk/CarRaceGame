@@ -28,7 +28,7 @@ class Car {
 
         this.controlType = controlType;
         this.sensor = controlType !== "DUMMY" ? null : null;
-        this.controls = new Controls(controlType);
+        this.controls = controlType === "PHONE" ? new PhoneControls(cameraCanvas) : new Controls(controlType);
     }
 
     update(roadBorders, traffic) {
@@ -97,7 +97,7 @@ class Car {
             this.speed -= this.acceleration;
         }
         if (this.speed !== 0) {
-            if (this.controls.tilt !== null) {
+            if (this.controls.tilt) {
                 this.angle -= this.controls.tilt * 0.03;
             }
             else {

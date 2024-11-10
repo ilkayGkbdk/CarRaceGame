@@ -13,7 +13,8 @@ class Game {
         this.topCtx = this.topCanvas.getContext('2d');
         this.cameraCtx = this.cameraCanvas.getContext('2d');
 
-        this.car = new Car(road.getLaneCenter(1), 200, 55, 90, 15, "KEY");
+        const controlType = isMobile ? "PHONE" : "KEY";
+        this.car = new Car(road.getLaneCenter(1), 200, 55, 90, 15, controlType);
         this.road = road;
         this.trafficSize = trafficSize;
         this.carMinDist = carMinDist;
@@ -27,7 +28,6 @@ class Game {
         this.gameOver = false;
 
         if (isMobile) {
-            this.car.controls = isMobile ? new PhoneControls(cameraCanvas) : this.car.controls;
             this.gameStart = true;
             is3D = true;
             this.cameraCanvas.style = "top:50%; left:50%; position:absolute;";

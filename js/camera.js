@@ -109,7 +109,7 @@ class Camera {
         let j = 0;
         for (const poly of projPolys) {
             let color = 'orange';
-            if (cars[j].controlType === "KEY") {
+            if (cars[j].controlType === "KEY" || cars[j].controlType === "PHONE") {
                 color = 'blue';
             }
             poly.draw(ctx, { fill: color, strokeStyle: color });
