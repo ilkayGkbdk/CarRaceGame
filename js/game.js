@@ -29,6 +29,8 @@ class Game {
         if (isMobile) {
             this.car.controls = isMobile ? new PhoneControls(cameraCanvas) : this.car.controls;
             this.gameStart = true;
+            is3D = true;
+            this.cameraCanvas.style = "top:50%; left:50%; position:absolute;";
         }
 
         this.fov = this.#update();

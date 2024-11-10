@@ -19,7 +19,7 @@ class Camera {
         const t = 0.2;
         if (this.perspective === 'FP') {
             this.center = this.target.center;
-            this.z = -30;
+            this.z = -40;
         }
         else {
             this.z = -100;

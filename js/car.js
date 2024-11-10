@@ -97,12 +97,17 @@ class Car {
             this.speed -= this.acceleration;
         }
         if (this.speed !== 0) {
-            const flip = this.speed > 0 ? 1 : -1;
-            if (this.controls.left) {
-                this.angle += this.steerSens * flip;
+            if (this.controls.tilt) {
+                this.angle -= this.controls.tilt * 0.03;
             }
-            if (this.controls.right) {
-                this.angle -= this.steerSens * flip;
+            else {
+                const flip = this.speed > 0 ? 1 : -1;
+                if (this.controls.left) {
+                    this.angle += this.steerSens * flip;
+                }
+                if (this.controls.right) {
+                    this.angle -= this.steerSens * flip;
+                }
             }
         }
 
