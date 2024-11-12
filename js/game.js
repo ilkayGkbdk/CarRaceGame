@@ -44,7 +44,7 @@ class Game {
         localStorage.setItem("game", JSON.stringify(this));
     }
 
-    restart() {
+    restart(maxSpeed = 0) {
         this.car = null;
         this.traffic = [];
 
@@ -52,7 +52,8 @@ class Game {
         const gameInfo = gameString ? JSON.parse(gameString) : null;
         if (gameInfo) {
             const tmpCar = gameInfo.car;
-            this.car = new Car(tmpCar.center.x, tmpCar.center.y, tmpCar.width, tmpCar.height, tmpCar.maxSpeed, "KEY");
+            const speed = maxSpeed === 0 ? tmpCar.maxSpeed : maxSpeed;
+            this.car = new Car(tmpCar.center.x, tmpCar.center.y, tmpCar.width, tmpCar.height, speed, "KEY");
             this.traffic = this.#generateTraffic();
             const tmpCamera = new Camera(tmpCar.center, this.car);
             tmpCamera.perspective = gameInfo.camera.perspective;
@@ -63,6 +64,8 @@ class Game {
             this.fov = this.#update();
             this.finalTime = null;
         }
+
+        this.save();
     }
 
     sendMail() {
@@ -175,6 +178,10 @@ class Game {
         this.topCtx.fillText("- Hold down 'W' to", margin * 3, margin * 8);
         this.topCtx.fillText("start.", margin * 3, margin * 9);
         this.topCtx.fillText("- For 3D, press 'T'.", margin * 3, margin * 12);
+        this.topCtx.fillText("- Press 'C' to change", margin * 3, margin * 15);
+        this.topCtx.fillText("maximum speed.", margin * 3, margin * 16);
+        this.topCtx.fillStyle = 'red';
+        this.topCtx.fillText(`Current Max: ${this.car.maxSpeed}km/h`, margin * 3, margin * 18);
 
         this.cameraCtx.beginPath();
         this.cameraCtx.font = 'Bold 20px Arial';
@@ -185,6 +192,8 @@ class Game {
         this.cameraCtx.fillText("- Press 'V' to change", margin * 3, margin * 12);
         this.cameraCtx.fillText("perspective.", margin * 3, margin * 13);
         this.cameraCtx.fillText("- For 2D, press 'T'.", margin * 3, margin * 16);
+        this.cameraCtx.fillStyle = 'red';
+        this.cameraCtx.fillText(`Current Max: ${this.car.maxSpeed}km/h`, margin * 3, margin * 18);
     }
 
     #draw() {
@@ -198,6 +207,14 @@ class Game {
         this.#drawFinishLine(this.topCtx);
         this.traffic.forEach((traffic) => traffic.draw(this.topCtx));
         this.car.draw(this.topCtx);
+
+        this.topCtx.beginPath();
+        this.topCtx.fillStyle = 'black';
+        this.topCtx.font = 'Bold 20px Arial';
+        this.topCtx.textBaseline = 'middle';
+        this.topCtx.textAlign = 'center';
+        this.topCtx.fillText(`${this.car.speed.toFixed(2)}km/h`, this.car.center.x, this.car.center.y + 100);
+
         //this.camera.draw(this.topCtx);
 
         this.topCtx.restore();
@@ -287,6 +304,13 @@ class Game {
                     this.time = Date.now().valueOf();
                     this.finalTime = null;
                 }
+            }
+            if (evt.key === 'c' || evt.key === 'C') {
+                let speed = Number.parseInt(window.prompt("Enter the maximum speed."));
+                if (isNaN(speed) || speed <= 0) {
+                    speed = 0;
+                }
+                this.restart(speed);
             }
         });
 

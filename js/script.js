@@ -12,7 +12,6 @@ checkIs3D();
 
 let user = 'ilkay';
 const isMobileDevice = detectMob();
-console.log(isMobileDevice);
 
 let frame = 0;
 let second = 0;
